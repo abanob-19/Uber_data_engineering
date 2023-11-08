@@ -1,0 +1,48 @@
+1-SELECT * FROM public.green_taxi_9_2018 order by trip_distance desc
+LIMIT 20
+
+2-SELECT 
+    AVG(fare_amount * CAST("payment_type_Credit card" AS INTEGER)) as average_fare_Cash,
+    AVG(fare_amount * CAST("payment_type_Credit card" AS INTEGER)) as average_fare_CreditCard,
+    AVG(fare_amount * CAST("payment_type_Dispute" AS INTEGER)) as average_fare_Dispute,
+    AVG(fare_amount * CAST("payment_type_No charge" AS INTEGER)) as average_fare_NoCharge
+FROM public.green_taxi_9_2018
+
+3-select t2.original_value, t3.max_tip from public.lookup_green_taxi_9_2018 t2,
+(SELECT t1.pu_location as city, avg(t1.tip_amount) as max_tip 
+FROM public.green_taxi_9_2018 t1
+GROUP BY pu_location
+ORDER BY max_tip desc 
+limit 1) t3
+where t2.imputed_value=t3.city and t2.column_name='pu_location'
+
+4-select t2.original_value, t3.min_tip from public.lookup_green_taxi_9_2018 t2,
+(SELECT t1.pu_location as city, avg(t1.tip_amount) as min_tip 
+FROM public.green_taxi_9_2018 t1
+GROUP BY pu_location
+ORDER BY min_tip  
+limit 1) t3
+where t2.imputed_value=t3.city and t2.column_name='pu_location'
+
+5-select t2.original_value, t3.most_frequent as most_frequent from public.lookup_green_taxi_9_2018 t2,
+(SELECT t1.do_location as destination, COUNT(*) as most_frequent
+FROM public.green_taxi_9_2018 t1
+WHERE EXTRACT(DOW FROM lpep_pickup_datetime) IN (0, 6)
+GROUP BY do_location
+ORDER BY most_frequent DESC
+LIMIT 1) t3
+where t2.imputed_value=t3.destination and t2.column_name='do_location'
+
+6-SELECT 
+    GREATEST(
+        AVG(trip_distance * CAST("trip_type_Dispatch" AS INTEGER)),
+        AVG(trip_distance * CAST("trip_type_Street-hail" AS INTEGER))
+    ) as max_average
+FROM public.green_taxi_9_2018;
+
+7-SELECT AVG(fare_amount) as average_fare
+FROM public.green_taxi_9_2018
+WHERE EXTRACT(HOUR FROM "lpep_pickup_datetime") BETWEEN 16 AND 18;
+
+
+

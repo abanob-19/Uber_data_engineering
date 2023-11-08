@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  pgdatabase:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=green_taxi_9_2018
+    volumes:
+      - "./green_taxi_9_2018_postgres:/var/lib/postgresql/:rw"
+      - "./m2_queries:/var/lib/m2_queries:rw"
+    ports:
+      - "5432:5432"
+  ingest_database:
+    build: .
+    image: ingest_database:dew23
+    depends_on:
+      - pgdatabase
+    restart: on-failure
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=abanob11@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=1234
+    ports:
+      - "8080:80"
+    depends_on:
+      - pgdatabase
+
+    
