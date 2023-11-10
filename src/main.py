@@ -5,11 +5,13 @@ from sqlalchemy import create_engine
 
 df = pd.read_csv('data/green_tripdata_2018-09.csv')
 print('read csv')
-cleaned_dataset_path = 'green_trip_data_{2018}-{09}clean.csv'
+cleaned_dataset_path = '/cleanedFiles/green_trip_data_{2018}-{09}clean.csv'
 
 
 if os.path.exists(cleaned_dataset_path):
     print("Cleaned dataset found. No need to call cleaning functions.")
+    df = pd.read_csv('/cleanedFiles/green_trip_data_{2018}-{09}clean.csv',index_col=0)
+    lookup_df=pd.read_csv('/cleanedFiles/lookup_table_green_taxis.csv')
 else:
     print("Cleaned dataset not found. Calling cleaning functions...")
     functions.rename_columns(df)
@@ -45,6 +47,11 @@ else:
 	print('failed to connect')
 
 
-df.to_sql(name = 'green_taxi_9_2018',con = engine,if_exists='append')
-lookup_df.to_sql(name = 'lookup_green_taxi_9_2018',con = engine,if_exists='append')
-print('created tables')
+
+try:
+    df.to_sql(name='green_taxi_9_2018', con=engine, if_exists='fail')
+    lookup_df.to_sql(name = 'lookup_green_taxi_9_2018',con = engine,if_exists='fail')
+    print('created tables')
+except ValueError as e:
+    print('Tables already existed , so they are not created again')
+

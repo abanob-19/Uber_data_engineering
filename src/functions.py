@@ -175,7 +175,7 @@ def add_2_columns(df):
     df['trip_duration'] = (df['lpep_dropoff_datetime'] - df['lpep_pickup_datetime']).dt.total_seconds() / 60
     return df
 def get_coordinates(location):
-    time.sleep(0.25)
+   # time.sleep(0.25)
     url = f"https://geocode.maps.co/search?q={location}"
     response = requests.get(url)
     data = response.json()
@@ -184,8 +184,8 @@ def get_coordinates(location):
     else:
         return np.nan, np.nan
 def populate_coordinates(df):
-    if os.path.exists('unique_location_coordinates.csv'):
-        coordinates_df = pd.read_csv('unique_location_coordinates.csv',index_col='location')
+    if os.path.exists('/cleanedFiles/unique_location_coordinates.csv'):
+        coordinates_df = pd.read_csv('/cleanedFiles/unique_location_coordinates.csv',index_col='location')
         print (coordinates_df)
         df['pu_lat'] = df['pu_location'].map(coordinates_df['latitude'])
         df['pu_long'] = df['pu_location'].map(coordinates_df['longitude'])
@@ -196,7 +196,7 @@ def populate_coordinates(df):
         coordinates_df = pd.DataFrame(unique_locations, columns=['location'])
         coordinates_df[['latitude', 'longitude']] = coordinates_df['location'].apply(get_coordinates).apply(pd.Series)
         coordinates_df.set_index('location', inplace=True)
-        coordinates_df.to_csv('unique_location_coordinates.csv')
+        coordinates_df.to_csv('/cleanedFiles/unique_location_coordinates.csv')
         df['pu_lat'] = df['pu_location'].map(coordinates_df['latitude'])
         df['pu_long'] = df['pu_location'].map(coordinates_df['longitude'])
         df['do_lat'] = df['do_location'].map(coordinates_df['latitude'])
@@ -205,8 +205,8 @@ def save_lookup_table(lookup):
     lookup_df = pd.DataFrame([{"column_name": column_name, "original_value": original_value, "imputed_value": imputed_value}
     for column_name, mapping in lookup.items()
     for original_value, imputed_value in mapping.items()])
-    lookup_df.to_csv('lookup_table_green_taxis.csv', index=False)
+    lookup_df.to_csv('/cleanedFiles/lookup_table_green_taxis.csv', index=False)
     return lookup_df
 def save_to_csv_parquet(df):
-    df.to_parquet('green_trip_data_{2018}-{09}clean.parquet')
-    df.to_csv('green_trip_data_{2018}-{09}clean.csv')        
+    df.to_parquet('/cleanedFiles/green_trip_data_{2018}-{09}clean.parquet')
+    df.to_csv('/cleanedFiles/green_trip_data_{2018}-{09}clean.csv')        
